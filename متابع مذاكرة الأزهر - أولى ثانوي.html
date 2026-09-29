@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark" style="color-scheme: dark;"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متابع مذاكرة الأزهر - أولى ثانوي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Cairo:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12312c;
+    --ink-soft:#3c554f;
+    --gold:#a9772f;
+    --gold-soft:#cf9c4e;
+    --paper:#f6f1e4;
+    --paper-raised:#fffdf7;
+    --line:#ddd2b4;
+    --done:#3e7d54;
+    --done-bg:#e4efe2;
+    --progress:#b57a23;
+    --progress-bg:#f3e6cc;
+    --idle:#8a8070;
+    --idle-bg:#eee8d9;
+    --danger:#a13b30;
+    --shadow: 0 1px 2px rgba(18,49,44,.06), 0 6px 18px rgba(18,49,44,.07);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+    color-scheme: light;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark){
+      --ink:#eee6d2;
+      --ink-soft:#c9bfa4;
+      --gold:#e0ab5a;
+      --gold-soft:#c98f3c;
+      --paper:#181510;
+      --paper-raised:#221e17;
+      --line:#39332a;
+      --done:#7fbf8f;
+      --done-bg:#1d2b1e;
+      --progress:#e0ab5a;
+      --progress-bg:#2c2415;
+      --idle:#8f8570;
+      --idle-bg:#221e17;
+      --danger:#d6776a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#eee6d2;
+    --ink-soft:#c9bfa4;
+    --gold:#e0ab5a;
+    --gold-soft:#c98f3c;
+    --paper:#181510;
+    --paper-raised:#221e17;
+    --line:#39332a;
+    --done:#7fbf8f;
+    --done-bg:#1d2b1e;
+    --progress:#e0ab5a;
+    --progress-bg:#2c2415;
+    --idle:#8f8570;
+    --idle-bg:#221e17;
+    --danger:#d6776a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Cairo","Segoe UI",Tahoma,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  h1,h2,h3{font-family:"Amiri","Traditional Arabic",serif; margin:0;}
+  ::selection{background:var(--gold-soft); color:#fff;}
+
+  /* ---- App shell ---- */
+  #app{max-width:560px; margin:0 auto; min-height:100%; display:flex; flex-direction:column;}
+
+  header.top{
+    position:sticky; top:0; z-index:20;
+    padding:calc(18px + env(safe-area-inset-top,0px)) 18px 16px;
+    background:linear-gradient(180deg, var(--ink) 0%, #1a453e 100%);
+    color:#f6f1e4;
+    border-bottom:3px solid var(--gold);
+  }
+  :root[data-theme="dark"] header.top, :root:not([data-theme="light"]) header.top{
+    background:linear-gradient(180deg,#0d211d 0%,#122e28 100%);
+  }
+  @media (prefers-color-scheme: dark){ header.top{ background:linear-gradient(180deg,#0d211d 0%,#122e28 100%);} }
+  header.top .crumb{font-size:12.5px; letter-spacing:.02em; color:#cfe3da; opacity:.85; margin-bottom:4px;}
+  header.top h1{font-size:22px; font-weight:700; color:#fff; line-height:1.35;}
+  header.top .sub{font-size:13px; color:#cfe3da; margin-top:4px;}
+
+  .overall-wrap{display:flex; align-items:center; gap:14px; margin-top:16px;}
+  .ring{width:64px; height:64px; flex:none;}
+  .overall-text{flex:1;}
+  .overall-text .pct{font-size:26px; font-weight:800; color:#fff; font-family:"Amiri",serif;}
+  .overall-text .lbl{font-size:12.5px; color:#cfe3da;}
+
+  nav.tabs{
+    display:flex; gap:6px; padding:6px; margin:14px 16px 0;
+    background:rgba(0,0,0,.18); border-radius:999px;
+  }
+  nav.tabs button{
+    flex:1; border:0; background:transparent; color:#e7ddc3; font-family:inherit;
+    font-size:13.5px; font-weight:600; padding:9px 6px; border-radius:999px; cursor:pointer;
+  }
+  nav.tabs button.active{background:var(--gold); color:#20180a;}
+
+  main{flex:1; padding:16px 16px 90px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---- Dashboard ---- */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;}
+  .stat-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:14px; box-shadow:var(--shadow);
+  }
+  .stat-card .n{font-family:"Amiri",serif; font-size:24px; font-weight:700; color:var(--ink);}
+  .stat-card .t{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+
+  .section-title{font-size:15px; font-weight:700; color:var(--ink); margin:22px 0 10px; display:flex; align-items:center; gap:8px;}
+  .section-title .rule{flex:1; height:1px; background:var(--line);}
+
+  .subject-row{
+    display:flex; align-items:center; gap:12px; padding:12px 10px; border-radius:var(--radius-md);
+    background:var(--paper-raised); border:1px solid var(--line); margin-bottom:8px; cursor:pointer;
+  }
+  .badge{
+    width:38px; height:38px; border-radius:11px; flex:none; display:flex; align-items:center; justify-content:center;
+    font-family:"Amiri",serif; font-weight:700; font-size:16px; color:#fff;
+  }
+  .subject-row .info{flex:1; min-width:0;}
+  .subject-row .name{font-size:14.5px; font-weight:700; color:var(--ink);}
+  .subject-row .meta{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .bar{height:6px; border-radius:4px; background:var(--idle-bg); margin-top:7px; overflow:hidden;}
+  .bar > i{display:block; height:100%; background:var(--done); border-radius:4px;}
+  .chev{color:var(--ink-soft); font-size:13px;}
+
+  /* ---- Lessons view ---- */
+  .filter-row{display:flex; gap:7px; overflow-x:auto; padding-bottom:6px; margin-bottom:14px; -ms-overflow-style:none; scrollbar-width:none;}
+  .filter-row::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:none; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink-soft);
+    font-family:inherit; font-size:12.5px; font-weight:600; padding:7px 13px; border-radius:999px; cursor:pointer;
+    white-space:nowrap;
+  }
+  .chip.active{background:var(--ink); color:#f6f1e4; border-color:var(--ink);}
+
+  .subject-group{margin-bottom:20px;}
+  .subject-group-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .subject-group-head .name{font-size:15px; font-weight:700; font-family:"Amiri",serif;}
+  .subject-group-head .frac{margin-inline-start:auto; font-size:12px; color:var(--ink-soft);}
+
+  .lesson{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:11px 12px; margin-bottom:7px;
+  }
+  .lesson .top-row{display:flex; align-items:flex-start; gap:10px;}
+  .lesson .week{
+    flex:none; font-size:10.5px; font-weight:700; color:var(--gold); background:var(--progress-bg);
+    padding:3px 7px; border-radius:6px; margin-top:1px; white-space:nowrap;
+  }
+  .lesson .title{flex:1; font-size:13.5px; line-height:1.5; color:var(--ink);}
+  .lesson .status-row{display:flex; gap:7px; margin-top:9px;}
+  .status-btn{
+    flex:1; border:1px solid var(--line); border-radius:8px; padding:7px 4px; font-family:inherit;
+    font-size:11.5px; font-weight:600; cursor:pointer; text-align:center; background:var(--idle-bg); color:var(--idle);
+  }
+  .status-btn[data-state="in_progress"]{background:var(--progress-bg); color:var(--progress); border-color:transparent;}
+  .status-btn[data-state="done"]{background:var(--done-bg); color:var(--done); border-color:transparent;}
+  .status-btn .k{opacity:.7; font-weight:500;}
+
+  /* ---- Schedule view ---- */
+  .day-tabs{display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:14px;}
+  .day-tabs::-webkit-scrollbar{display:none;}
+  .day-btn{
+    flex:none; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink-soft);
+    font-family:inherit; font-size:12.5px; font-weight:700; padding:9px 14px; border-radius:12px; cursor:pointer;
+  }
+  .day-btn.active{background:var(--ink); color:#f6f1e4; border-color:var(--ink);}
+
+  .slot{
+    display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--line);
+  }
+  .slot:last-child{border-bottom:0;}
+  .slot .time{
+    flex:none; width:84px; font-size:11.5px; color:var(--ink-soft); font-weight:600; line-height:1.5; padding-top:1px;
+  }
+  .slot .stripe{width:3px; border-radius:3px; flex:none; align-self:stretch;}
+  .slot .body{flex:1; min-width:0;}
+  .slot .subj{font-size:14px; font-weight:700; color:var(--ink);}
+  .slot .dur{display:inline-block; font-size:10.5px; color:var(--gold); background:var(--progress-bg); border-radius:6px; padding:1px 7px; margin-inline-start:6px; font-weight:700; vertical-align:middle;}
+  .slot .activity{font-size:12.5px; color:var(--ink-soft); margin-top:4px; line-height:1.5;}
+  .slot .note{font-size:11.5px; color:var(--gold); margin-top:4px;}
+  .day-note{
+    background:var(--progress-bg); color:var(--ink); border-radius:var(--radius-md); padding:12px 14px;
+    font-size:12.5px; margin-top:14px; line-height:1.6; border:1px dashed var(--gold-soft);
+  }
+
+  footer.bottom{display:none;}
+  .empty{text-align:center; color:var(--ink-soft); font-size:13px; padding:30px 10px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <div class="crumb">المعاهد الأزهرية · الصف الأول الثانوي · بكالوريا 2027</div>
+    <h1>برنامج المذاكرة التفاعلي</h1>
+    <div class="sub">الفصل الدراسي الأول — متابعة الدروس والجدول اليومي</div>
+    <div class="overall-wrap">
+      <svg class="ring" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"></circle>
+        <circle id="ring-progress" cx="32" cy="32" r="27" fill="none" stroke="#cf9c4e" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6" transform="rotate(-90 32 32)"></circle>
+      </svg>
+      <div class="overall-text">
+        <div class="pct" id="overall-pct">٠٪</div>
+        <div class="lbl" id="overall-lbl">لم تبدأ أي دروس بعد</div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button data-tab="dashboard" class="active">لوحة التحكم</button>
+      <button data-tab="lessons">الدروس</button>
+      <button data-tab="schedule">الجدول اليومي</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-lessons" class="view"></section>
+    <section id="view-schedule" class="view"></section>
+  </main>
+
+</div>
+
+<script id="state-data" type="application/json">{"lessonStatus":{"hadith-1":{"study":"not_started","review":"not_started"},"hadith-2":{"study":"not_started","review":"not_started"},"hadith-3":{"study":"not_started","review":"not_started"},"hadith-4":{"study":"not_started","review":"not_started"},"hadith-5":{"study":"not_started","review":"not_started"},"hadith-6":{"study":"not_started","review":"not_started"},"hadith-7":{"study":"not_started","review":"not_started"},"hadith-8":{"study":"not_started","review":"not_started"},"hadith-9":{"study":"not_started","review":"not_started"},"hadith-10":{"study":"not_started","review":"not_started"},"hadith-11":{"study":"not_started","review":"not_started"},"hadith-12":{"study":"not_started","review":"not_started"},"hadith-13":{"study":"not_started","review":"not_started"},"hadith-14":{"study":"not_started","review":"not_started"},"hadith-15":{"study":"not_started","review":"not_started"},"nahw-1":{"study":"done","review":"not_started"},"nahw-2":{"study":"done","review":"not_started"},"nahw-3":{"study":"not_started","review":"not_started"},"nahw-4":{"study":"not_started","review":"not_started"},"nahw-5":{"study":"not_started","review":"not_started"},"nahw-6":{"study":"not_started","review":"not_started"},"nahw-7":{"study":"not_started","review":"not_started"},"nahw-8":{"study":"not_started","review":"not_started"},"nahw-9":{"study":"not_started","review":"not_started"},"nahw-10":{"study":"not_started","review":"not_started"},"balagha-1":{"study":"done","review":"not_started"},"balagha-2":{"study":"not_started","review":"not_started"},"balagha-3":{"study":"not_started","review":"not_started"},"balagha-4":{"study":"not_started","review":"not_started"},"balagha-5":{"study":"not_started","review":"not_started"},"balagha-6":{"study":"not_started","review":"not_started"},"balagha-7":{"study":"not_started","review":"not_started"},"balagha-8":{"study":"not_started","review":"not_started"},"balagha-9":{"study":"not_started","review":"not_started"},"balagha-10":{"study":"not_started","review":"not_started"},"balagha-11":{"study":"not_started","review":"not_started"},"balagha-12":{"study":"not_started","review":"not_started"},"adab-1":{"study":"not_started","review":"not_started"},"adab-2":{"study":"not_started","review":"not_started"},"adab-3":{"study":"not_started","review":"not_started"},"adab-4":{"study":"not_started","review":"not_started"},"adab-5":{"study":"not_started","review":"not_started"},"adab-6":{"study":"not_started","review":"not_started"},"adab-7":{"study":"not_started","review":"not_started"},"adab-8":{"study":"not_started","review":"not_started"},"adab-9":{"study":"not_started","review":"not_started"},"adab-10":{"study":"not_started","review":"not_started"},"adab-11":{"study":"not_started","review":"not_started"},"adab-12":{"study":"not_started","review":"not_started"},"mutalaa-1":{"study":"not_started","review":"not_started"},"mutalaa-2":{"study":"not_started","review":"not_started"},"mutalaa-3":{"study":"not_started","review":"not_started"},"mutalaa-4":{"study":"not_started","review":"not_started"},"mutalaa-5":{"study":"not_started","review":"not_started"},"mutalaa-6":{"study":"not_started","review":"not_started"},"mutalaa-7":{"study":"not_started","review":"not_started"},"mutalaa-8":{"study":"not_started","review":"not_started"},"mutalaa-9":{"study":"not_started","review":"not_started"},"mutalaa-10":{"study":"not_started","review":"not_started"},"oloom-1":{"study":"done","review":"not_started"},"oloom-2":{"study":"not_started","review":"not_started"},"oloom-3":{"study":"not_started","review":"not_started"},"oloom-4":{"study":"not_started","review":"not_started"},"oloom-5":{"study":"not_started","review":"not_started"},"oloom-6":{"study":"not_started","review":"not_started"},"oloom-7":{"study":"not_started","review":"not_started"},"oloom-8":{"study":"not_started","review":"not_started"},"oloom-9":{"study":"not_started","review":"not_started"},"oloom-10":{"study":"not_started","review":"not_started"},"riyada-1":{"study":"done","review":"not_started"},"riyada-2":{"study":"not_started","review":"not_started"},"riyada-3":{"study":"not_started","review":"not_started"},"riyada-4":{"study":"not_started","review":"not_started"},"riyada-5":{"study":"not_started","review":"not_started"},"riyada-6":{"study":"not_started","review":"not_started"},"riyada-7":{"study":"not_started","review":"not_started"},"riyada-8":{"study":"not_started","review":"not_started"},"riyada-9":{"study":"not_started","review":"not_started"},"riyada-10":{"study":"not_started","review":"not_started"},"falsafa-1":{"study":"not_started","review":"not_started"},"falsafa-2":{"study":"not_started","review":"not_started"},"falsafa-3":{"study":"not_started","review":"not_started"},"falsafa-4":{"study":"not_started","review":"not_started"},"falsafa-5":{"study":"not_started","review":"not_started"},"falsafa-6":{"study":"not_started","review":"not_started"},"falsafa-7":{"study":"not_started","review":"not_started"},"falsafa-8":{"study":"not_started","review":"not_started"},"tareekh-1":{"study":"not_started","review":"not_started"},"tareekh-2":{"study":"not_started","review":"not_started"},"tareekh-3":{"study":"not_started","review":"not_started"},"tareekh-4":{"study":"not_started","review":"not_started"},"tareekh-5":{"study":"not_started","review":"not_started"},"tareekh-6":{"study":"not_started","review":"not_started"},"tareekh-7":{"study":"not_started","review":"not_started"},"tareekh-8":{"study":"not_started","review":"not_started"},"tareekh-9":{"study":"not_started","review":"not_started"},"fiqh-1":{"study":"not_started","review":"not_started"},"fiqh-2":{"study":"done","review":"not_started"},"fiqh-3":{"study":"not_started","review":"not_started"},"fiqh-4":{"study":"not_started","review":"not_started"},"fiqh-5":{"study":"not_started","review":"not_started"},"fiqh-6":{"study":"not_started","review":"not_started"},"fiqh-7":{"study":"not_started","review":"not_started"},"tafsir-1":{"study":"not_started","review":"not_started"},"tafsir-2":{"study":"not_started","review":"not_started"},"tafsir-3":{"study":"not_started","review":"not_started"},"tafsir-4":{"study":"not_started","review":"not_started"},"tafsir-5":{"study":"not_started","review":"not_started"},"tawhid-1":{"study":"not_started","review":"not_started"},"tawhid-2":{"study":"not_started","review":"not_started"},"tawhid-3":{"study":"not_started","review":"not_started"},"tawhid-4":{"study":"not_started","review":"not_started"},"tawhid-5":{"study":"not_started","review":"not_started"},"tawhid-6":{"study":"not_started","review":"not_started"},"tawhid-7":{"study":"not_started","review":"not_started"}}}</script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============ DATA ============ */
+  var SUBJECTS = [
+    {id:"hadith",  name:"الحديث الشريف وعلومه", color:"#a9772f"},
+    {id:"fiqh",    name:"الفقه (شافعي)",         color:"#7d2d46"},
+    {id:"tafsir",  name:"التفسير",               color:"#3f6b4f"},
+    {id:"tawhid",  name:"التوحيد",               color:"#4a3f7d"},
+    {id:"nahw",    name:"النحو",                 color:"#1f6f5c"},
+    {id:"balagha", name:"البلاغة",                color:"#7a4f8c"},
+    {id:"adab",    name:"الأدب والنصوص",          color:"#2a5f8f"},
+    {id:"mutalaa", name:"المطالعة والإنشاء",       color:"#b5562f"},
+    {id:"oloom",   name:"العلوم المتكاملة",       color:"#2f7a6e"},
+    {id:"riyada",  name:"الرياضيات",              color:"#4a5a8c"},
+    {id:"falsafa", name:"الفلسفة والمنطق",        color:"#6d6248"},
+    {id:"tareekh", name:"التاريخ",                color:"#8c4a3a"}
+  ];
+
+  function L(subjectId, week, title){ return {subjectId:subjectId, week:week, title:title}; }
+
+  var RAW_LESSONS = []
+    .concat([
+      L("hadith",1,"مبادئ علم الحديث وتعريفه وأهميته"),
+      L("hadith",1,"الحديث الأول: أركان الإسلام وعظمتها"),
+      L("hadith",2,"الحديث الثاني: شعب الإيمان والحياء"),
+      L("hadith",2,"ترجمة الإمام البخاري وحياته"),
+      L("hadith",3,"الحديث الثالث: النهي عن قتال المسلمين"),
+      L("hadith",4,"تقسيم الخبر: المتواتر والآحاد"),
+      L("hadith",4,"الحديث الرابع: الرفق بالحيوان وجزاؤه"),
+      L("hadith",5,"ترجمة الإمام مسلم بن الحجاج"),
+      L("hadith",6,"الحديث الخامس: صلة الرحم والبر"),
+      L("hadith",7,"الحديث الصحيح لذاته وشروطه"),
+      L("hadith",11,"الحديث الثامن: التنافس في الخيرات"),
+      L("hadith",12,"الحديث التاسع: فضل التوبة والاستغفار")
+    ])
+    .concat([
+      L("fiqh",1,"أحكام المياه: أقسامها وحكم التطهر بكل نوع"),
+      L("fiqh",3,"باب الطهارة: تعريفها ومقاصدها"),
+      L("fiqh",5,"نواقض الوضوء"),
+      L("fiqh",7,"التيمم: أسبابه وشروطه وصفته"),
+      L("fiqh",9,"الصلاة: أركانها"),
+      L("fiqh",10,"الصلاة: هيئاتها"),
+      L("fiqh",12,"الصلاة: سننها")
+    ])
+    .concat([
+      L("tafsir",2,"تفسير سورة النبأ"),
+      L("tafsir",4,"تفسير سورة النازعات"),
+      L("tafsir",6,"تفسير سورة عبس"),
+      L("tafsir",8,"تفسير سورة التكوير"),
+      L("tafsir",10,"تفسير سورة الانفطار")
+    ])
+    .concat([
+      L("tawhid",1,"المبادئ العشرة لعلم التوحيد"),
+      L("tawhid",3,"التكليف والمكلَّف"),
+      L("tawhid",5,"ما يجب على المكلَّف"),
+      L("tawhid",6,"التقليد وحكم إيمان المقلِّد"),
+      L("tawhid",8,"أول ما يجب على المكلَّف: النظر ومسالكه"),
+      L("tawhid",10,"الإيمان والإسلام"),
+      L("tawhid",12,"الصفات النفسية لله تعالى")
+    ])
+    .concat([
+      L("nahw",1,"الكلام وما يتألف منه (الاسم، الفعل، الحرف)"),
+      L("nahw",2,"علامات الاسم والفعل والحرف"),
+      L("nahw",3,"المعرب والمبني من الأسماء والأفعال"),
+      L("nahw",4,"أنواع الإعراب والبناء"),
+      L("nahw",5,"النكرة والمعرفة وأقسام المعارف"),
+      L("nahw",6,"المعرف بأداة التعريف (أل) وأنواعها"),
+      L("nahw",7,"الضمير: البارز والمستتر والمنفصل والمتصل"),
+      L("nahw",8,"اسم الإشارة وأحكامه"),
+      L("nahw",9,"اسم الموصول (الخاص والمشترك)"),
+      L("nahw",10,"صلة الموصول وحكم حذف العائد")
+    ])
+    .concat([
+      L("balagha",1,"مقدمة في علم البلاغة وفصاحة الكلمة"),
+      L("balagha",2,"فصاحة الكلام وشروطه وعيوبه"),
+      L("balagha",3,"تعريف بلاغة الكلام وبلاغة المتكلم"),
+      L("balagha",4,"نشأة علم البلاغة وأهم أئمته"),
+      L("balagha",5,"علم المعاني: تعريفه وموضوعه وأغراضه"),
+      L("balagha",6,"الحقيقة والمجاز: المفهوم والفرق بينهما"),
+      L("balagha",7,"الخبر: تعريفه وأغراضه وأضربه"),
+      L("balagha",8,"المجاز اللغوي: التشبيه وتعريفه وأركانه"),
+      L("balagha",9,"أنواع التشبيه (المفرد والمركب والتمثيلي)"),
+      L("balagha",10,"التشبيه الضمني وبلاغته"),
+      L("balagha",11,"الاستعارة: تعريفها وأنواعها (تصريحية ومكنية)"),
+      L("balagha",12,"مراجعة شاملة: الفصاحة والبلاغة والتشبيه والاستعارة")
+    ])
+    .concat([
+      L("adab",1,"تاريخ الأدب: العصر الجاهلي والبيئة العربية"),
+      L("adab",2,"الشعر الجاهلي: أغراضه وخصائصه الفنية"),
+      L("adab",3,"نص: من معلقات الشعر الجاهلي (دراسة وتحليل)"),
+      L("adab",4,"أشهر شعراء العصر الجاهلي وتراجمهم"),
+      L("adab",5,"النثر الجاهلي: الخطابة والوصايا والأمثال"),
+      L("adab",6,"نص نثري: وصية أم لابنتها (حفظ ودراسة)"),
+      L("adab",7,"أدب صدر الإسلام: أثر الإسلام في الشعر والنثر"),
+      L("adab",8,"نص شعري: في مدح الرسول ﷺ (حفظ ودراسة)"),
+      L("adab",9,"نص نثري من صدر الإسلام (خطبة أو رسالة)"),
+      L("adab",10,"خصائص الشعر في صدر الإسلام"),
+      L("adab",11,"نص شعري: في الفخر والحماسة الإسلامية"),
+      L("adab",12,"مراجعة شاملة على الأدب والنصوص")
+    ])
+    .concat([
+      L("mutalaa",1,"المطالعة: الإسلام بريء من صراع الطبقات"),
+      L("mutalaa",2,"المطالعة: موضوع الحوار وأدبه في الإسلام"),
+      L("mutalaa",3,"الإنشاء: قواعد التعبير التحريري والوظيفي (البرقية والطلب)"),
+      L("mutalaa",4,"المطالعة: موضوع قيم شخصية واجتماعية"),
+      L("mutalaa",5,"الإنشاء: أصول كتابة الرسالة الإخوانية والرسمية"),
+      L("mutalaa",6,"المطالعة: العلم والتكنولوجيا في خدمة المجتمع"),
+      L("mutalaa",7,"الإنشاء: أصول كتابة المقال التعبيري وتقسيم الأفكار"),
+      L("mutalaa",8,"المطالعة: موضوع القيم الاجتماعية والتكافل"),
+      L("mutalaa",9,"الإنشاء: علامات الترقيم واستخدامها في الكتابة"),
+      L("mutalaa",10,"مراجعة شاملة على المطالعة والإنشاء")
+    ])
+    .concat([
+      L("oloom",1,"الوحدة 1 - الدرس 1: الغلاف المائي ودورة الماء في الطبيعة"),
+      L("oloom",2,"الوحدة 1 - الدرس 2: الخواص الكيميائية والفيزيائية للماء"),
+      L("oloom",3,"الوحدة 1 - الدرس 3: المحاليل والأحماض والقواعد في البيئة المائية"),
+      L("oloom",4,"الوحدة 1 - الدرس 4: التكيفات البيولوجية للكائنات المائية"),
+      L("oloom",5,"الوحدة 1 - الدرس 5: الضوء والضغط والغازات الذائبة في الماء"),
+      L("oloom",6,"الوحدة 1 - الدرس 6: التوازن البيئي المائي والأنشطة البشرية"),
+      L("oloom",7,"الوحدة 2 - الدرس 1: مكونات وطبقات الغلاف الجوي"),
+      L("oloom",8,"الوحدة 2 - الدرس 2: التفاعلات الكيميائية في الغلاف الجوي"),
+      L("oloom",9,"الوحدة 2 - الدرس 3: العوامل الفيزيائية والضغط الجوي والحرارة"),
+      L("oloom",10,"الوحدة 2 - الدرس 4: حماية الغلاف الجوي والاستدامة البيئية")
+    ])
+    .concat([
+      L("riyada",1,"جبر: مقدمة عن الأعداد المركبة والعدد التخيلي"),
+      L("riyada",2,"هندسة: تشابه المضلعات وتشابه المثلثات"),
+      L("riyada",2,"جبر: تحديد نوع جذري المعادلة التربيعية بواسطة المميز"),
+      L("riyada",3,"مثلثات: الزاوية الموجهة والقياس الستيني والدائري"),
+      L("riyada",4,"جبر: العلاقة بين جذري معادلة الدرجة الثانية وتكوينها"),
+      L("riyada",5,"مثلثات: الدوال المثلثية والزوايا المنتسبة"),
+      L("riyada",5,"هندسة: العلاقة بين مساحتي متشابهين وتطبيقات التشابه في الدائرة"),
+      L("riyada",6,"جبر: البحث في إشارة الدالة وحل المتباينات التربيعية"),
+      L("riyada",8,"مثلثات: التمثيل البياني للدوال المثلثية والقياس الدائري"),
+      L("riyada",9,"هندسة: المستقيمات المتوازية ونظرية طاليس والمنصفات")
+    ])
+    .concat([
+      L("falsafa",1,"فلسفة - الفصل 1: التفكير الإنساني وأساليبه (علمي، فلسفي، إبداعي)"),
+      L("falsafa",2,"فلسفة - الفصل 1: أهمية التفكير وعوامل الوقوع في أخطاء التفكير"),
+      L("falsafa",4,"فلسفة - الفصل 2: نشأة الفلسفة وتعريفها وأهميتها للفرد والمجتمع"),
+      L("falsafa",6,"فلسفة - الفصل 2: طبيعة الموقف الفلسفي وخصائصه وتحدياته"),
+      L("falsafa",7,"منطق - الفصل 1: تعريف المنطق ونشأته وأهميته"),
+      L("falsafa",8,"منطق - الفصل 1: الحدود المنطقية وأنواعها والقضايا المنطقية"),
+      L("falsafa",10,"منطق - الفصل 2: الاستدلال المباشر (مربع أرسطو)"),
+      L("falsafa",11,"منطق - الفصل 2: القياس أشكاله وشروطه")
+    ])
+    .concat([
+      L("tareekh",1,"الوحدة 1 - الدرس 1: الحضارة والتاريخ ومفهومهما"),
+      L("tareekh",2,"الوحدة 1 - الدرس 2: مصادر دراسة الحضارات (أولية وثانوية)"),
+      L("tareekh",3,"الوحدة 1 - الدرس 3: عوامل قيام الحضارات (مصر القديمة نموذجاً)"),
+      L("tareekh",4,"الوحدة 2 - الدرس 1: ملامح من تاريخ مصر القديمة (العصور التاريخية)"),
+      L("tareekh",5,"الوحدة 2 - الدرس 2: الحياة الاقتصادية في مصر القديمة"),
+      L("tareekh",6,"الوحدة 2 - الدرس 3: الحياة السياسية والإدارية والعسكرية"),
+      L("tareekh",7,"الوحدة 2 - الدرس 4: الحياة الاجتماعية والطبقات في مصر القديمة"),
+      L("tareekh",8,"الوحدة 2 - الدرس 5: الحياة الدينية والآلهة والتحنيط"),
+      L("tareekh",10,"الوحدة 2 - الدرس 6: الحياة الثقافية والفكرية والعلوم والعمائر")
+    ]);
+
+  var subjectCounters = {};
+  var LESSONS = RAW_LESSONS.map(function(l){
+    subjectCounters[l.subjectId] = (subjectCounters[l.subjectId] || 0) + 1;
+    l.id = l.subjectId + "-" + subjectCounters[l.subjectId];
+    return l;
+  });
+  var subjectLessonCount = subjectCounters;
+
+  function subj(id){ for(var i=0;i<SUBJECTS.length;i++){ if(SUBJECTS[i].id===id) return SUBJECTS[i]; } return null; }
+
+  /* Weekly schedule — durations adjusted to cover the expanded
+     البلاغة / الأدب والنصوص / المطالعة والإنشاء curriculum */
+  var SCHEDULE = {
+    "السبت":[
+      {time:"٠٣:٣٠ م – ٠٥:٠٠ م", dur:"ساعة ونصف", subjectId:"riyada", activity:"شرح الدرس + فهم القوانين وحل أمثلة محلولة (جبر / هندسة)", note:"تركيز على التمارين"},
+      {time:"٠٥:١٥ م – ٠٦:٣٠ م", dur:"ساعة وربع", subjectId:"hadith", activity:"حفظ الحديث الشريف + معاني الكلمات وعلم الحديث", note:"تكرار الحفظ ٣ مرات"},
+      {time:"٠٦:٣٠ م – ٠٧:٠٠ م", dur:"٣٠ دقيقة", subjectId:null, activity:"استراحة وتطبيق سريع: حل ٥ أسئلة على ما تم مذاكرته", note:"اختبار ذاتي"},
+      {time:"٠٧:٠٠ م – ٠٧:٤٥ م", dur:"٤٥ دقيقة", subjectId:"fiqh", activity:"فهم الحكم الفقهي وأدلته وتطبيقه على مسائل عملية", note:"جلسة أسبوعية للفقه — أحكام المياه والطهارة ونواقض الوضوء والتيمم والصلاة"}
+    ],
+    "الأحد":[
+      {time:"٠٣:٣٠ م – ٠٥:٠٠ م", dur:"ساعة ونصف", subjectId:"oloom", activity:"قراءة مفاهيم الدرس + فهم التجارب والرسم البياني", note:"تلخيص النقاط الرئيسية"},
+      {time:"٠٥:١٥ م – ٠٦:٣٠ م", dur:"ساعة وربع", subjectId:"nahw", activity:"فهم القاعدة النحوية + استخراج الشواهد والأمثلة", note:"حل تدريبات المرشد"},
+      {time:"٠٦:٣٠ م – ٠٧:١٥ م", dur:"٤٥ دقيقة", subjectId:"mutalaa", activity:"قراءة موضوع المطالعة أو التدرب على كتابة موضوع تعبير", note:"مدة موسّعة لاستيعاب دروس المطالعة والإنشاء الإضافية"},
+      {time:"٠٧:١٥ م – ٠٧:٤٥ م", dur:"٣٠ دقيقة", subjectId:"tafsir", activity:"تلاوة وتدبر آيات السورة المقررة مع فهم معاني المفردات", note:"جلسة أسبوعية جديدة للتفسير"}
+    ],
+    "الإثنين":[
+      {time:"٠٣:٣٠ م – ٠٤:٤٥ م", dur:"ساعة وربع", subjectId:"tareekh", activity:"ربط الأحداث بالخريطة الزمنية وتحليل الأسباب", note:"حفظ الشخصيات والتواريخ"},
+      {time:"٠٥:٠٠ م – ٠٦:١٥ م", dur:"ساعة وربع", subjectId:"falsafa", activity:"فهم المصطلحات الفلسفية وقواعد الاستدلال والقياس", note:"تطبيق على مواقف حياتية"},
+      {time:"٠٦:١٥ م – ٠٧:٠٠ م", dur:"٤٥ دقيقة", subjectId:"balagha", activity:"فهم أركان التشبيه أو الحقيقة والمجاز وتذوق النظائر", note:"الجلسة الأسبوعية الأولى للبلاغة"},
+      {time:"٠٧:٠٠ م – ٠٧:٣٠ م", dur:"٣٠ دقيقة", subjectId:"tawhid", activity:"فهم المسألة العقدية وحفظ تعريفاتها الأساسية", note:"جلسة أسبوعية جديدة للتوحيد"}
+    ],
+    "الثلاثاء":[
+      {time:"٠٣:٣٠ م – ٠٥:٠٠ م", dur:"ساعة ونصف", subjectId:"riyada", activity:"رسم الزوايا والمثلثات وحل المتطابقات (حساب المثلثات)", note:"استخدام الآلة الحاسبة وفهم القوانين"},
+      {time:"٠٥:١٥ م – ٠٦:٣٠ م", dur:"ساعة وربع", subjectId:"oloom", activity:"مراجعة الدرس السابق + حل تدريبات الوحدة", note:"حل أسئلة كتاب الامتحان"},
+      {time:"٠٦:٣٠ م – ٠٧:١٥ م", dur:"٤٥ دقيقة", subjectId:"adab", activity:"حفظ الأبيات المحددة ومعاني المفردات والجماليات", note:"مدة موسّعة — الجلسة الأولى للأدب والنصوص"}
+    ],
+    "الأربعاء":[
+      {time:"٠٣:٣٠ م – ٠٤:٤٥ م", dur:"ساعة وربع", subjectId:"hadith", activity:"مراجعة الأحاديث السابقة + مذاكرة الحديث الجديد", note:"ربط الحديث بالعلوم الشرعية"},
+      {time:"٠٥:٠٠ م – ٠٥:٤٥ م", dur:"٤٥ دقيقة", subjectId:"nahw", activity:"إعراب جمل كاملة وتطبيق القاعدة على نصوص أزهرية", note:null},
+      {time:"٠٥:٤٥ م – ٠٦:٣٠ م", dur:"٤٥ دقيقة", subjectId:"balagha", activity:"حل تمارين البلاغة وتطبيق القاعدة على شواهد شعرية", note:"الجلسة الأسبوعية الثانية للبلاغة"},
+      {time:"٠٦:٣٠ م – ٠٧:١٥ م", dur:"٤٥ دقيقة", subjectId:"adab", activity:"دراسة العصر الجاهلي أو صدر الإسلام وسمات الشعر", note:"الجلسة الثانية للأدب والنصوص — حفظ تراجم الشعراء"}
+    ],
+    "الخميس":[
+      {time:"٠٣:٣٠ م – ٠٥:٠٠ م", dur:"ساعة ونصف", subjectId:"tareekh", activity:"مراجعة سريعة وشاملة لما تم دراسته خلال الأسبوع (تاريخ وفلسفة)", note:null},
+      {time:"٠٥:١٥ م – ٠٧:٠٠ م", dur:"ساعة و٤٥ دقيقة", subjectId:null, activity:"اختبار أسبوعي: حل امتحان كراسة التقييم أو المرشد في جميع المواد", note:"تحديد الأخطاء وتصحيحها"}
+    ],
+    "الجمعة":[
+      {time:"طوال اليوم", dur:"مرن", subjectId:null, activity:"راحة + استدراك أي درس متأخر + حفظ القرآن الكريم", note:"تجديد الطاقة للأسبوع القادم"}
+    ]
+  };
+  var DAY_ORDER = ["السبت","الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+
+  /* ============ STATE ============ */
+  var stateEl = document.getElementById("state-data");
+  var state;
+  try{ state = JSON.parse(stateEl.textContent); }catch(e){ state = null; }
+  if(!state || !state.lessonStatus){
+    state = {lessonStatus:{}};
+  }
+  /* One-time migration: earlier versions of this file numbered lesson ids by
+     their global position across all subjects, so adding "fiقh" ahead of
+     other subjects would have shifted those ids. If a loaded id's number is
+     larger than that subject's own lesson count, it must be an old
+     global-position id — remap it using the offsets from before fiqh existed. */
+  var OLD_GLOBAL_OFFSETS = {hadith:0, nahw:15, balagha:25, adab:37, mutalaa:49, oloom:59, riyada:69, falsafa:79, tareekh:87};
+  (function migrateOldIds(){
+    var migrated = {};
+    Object.keys(state.lessonStatus).forEach(function(key){
+      var m = key.match(/^([a-z]+)-(\d+)$/);
+      if(!m){ migrated[key] = state.lessonStatus[key]; return; }
+      var subjectId = m[1], num = parseInt(m[2], 10);
+      var count = subjectLessonCount[subjectId];
+      if(count && num > count && OLD_GLOBAL_OFFSETS.hasOwnProperty(subjectId)){
+        var localIndex = num - OLD_GLOBAL_OFFSETS[subjectId];
+        if(localIndex >= 1 && localIndex <= count){
+          migrated[subjectId + "-" + localIndex] = state.lessonStatus[key];
+          return;
+        }
+      }
+      migrated[key] = state.lessonStatus[key];
+    });
+    state.lessonStatus = migrated;
+  })();
+  LESSONS.forEach(function(l){
+    if(!state.lessonStatus[l.id]){
+      state.lessonStatus[l.id] = {study:"not_started", review:"not_started"};
+    }
+  });
+
+  var BASE_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+  var ui = {tab:"dashboard", lessonFilter:"all", day:DAY_ORDER[0]};
+
+  /* ============ PERSISTENCE ============ */
+  var artifactApi = null;
+  var publishTimer = null;
+  if(window.claude && window.claude.use){
+    window.claude.use("artifact").then(function(a){ artifactApi = a; }).catch(function(){ artifactApi = null; });
+  }
+  function buildPublishHTML(){
+    var json = JSON.stringify(state);
+    return BASE_HTML.replace(
+      /(<script id="state-data" type="application\/json">)([\s\S]*?)(<\/script>)/,
+      function(m,p1,p2,p3){ return p1 + json + p3; }
+    );
+  }
+  function schedulePublish(){
+    if(!artifactApi) return;
+    clearTimeout(publishTimer);
+    publishTimer = setTimeout(function(){
+      try{ artifactApi.publish(buildPublishHTML()); }catch(e){ /* conflict: no retry */ }
+    }, 350);
+  }
+
+  /* ============ HELPERS ============ */
+  var STUDY_LABELS = {not_started:"لم يبدأ", in_progress:"قيد المذاكرة", done:"تم الحفظ/الفهم"};
+  var REVIEW_LABELS = {not_started:"بلا مراجعة", in_progress:"مراجعة أولى", done:"تمت المراجعة"};
+  var CYCLE = ["not_started","in_progress","done"];
+
+  function lessonsFor(subjectId){
+    return LESSONS.filter(function(l){ return l.subjectId===subjectId; });
+  }
+  function subjectStats(subjectId){
+    var ls = lessonsFor(subjectId);
+    var done=0, inProg=0;
+    ls.forEach(function(l){
+      var s = state.lessonStatus[l.id];
+      if(s.study==="done") done++;
+      else if(s.study==="in_progress") inProg++;
+    });
+    return {total:ls.length, done:done, inProgress:inProg};
+  }
+  function overallStats(){
+    var total=0, done=0, inProg=0;
+    LESSONS.forEach(function(l){
+      total++;
+      var s = state.lessonStatus[l.id];
+      if(s.study==="done") done++;
+      else if(s.study==="in_progress") inProg++;
+    });
+    return {total:total, done:done, inProgress:inProg};
+  }
+  function arabicPct(n){
+    var digits = ["٠","١","٢","٣","٤","٥","٦","٧","٨","٩"];
+    return String(n).replace(/[0-9]/g, function(d){ return digits[+d]; });
+  }
+
+  /* ============ RENDER: header ring ============ */
+  function renderHeader(){
+    var o = overallStats();
+    var pct = o.total ? Math.round((o.done/o.total)*100) : 0;
+    var circumference = 169.6;
+    var offset = circumference - (circumference*pct/100);
+    document.getElementById("ring-progress").setAttribute("stroke-dashoffset", offset.toFixed(1));
+    document.getElementById("overall-pct").textContent = arabicPct(pct) + "٪";
+    var lbl = pct===0 ? "لم تبدأ أي دروس بعد" :
+              pct===100 ? "أنجزت كل دروس الترم! 🎉" :
+              (arabicPct(o.done) + " من " + arabicPct(o.total) + " درساً مكتملاً");
+    document.getElementById("overall-lbl").textContent = lbl;
+  }
+
+  /* ============ RENDER: dashboard ============ */
+  function renderDashboard(){
+    var o = overallStats();
+    var html = "";
+    html += '<div class="stat-grid">';
+    html += '<div class="stat-card"><div class="n">'+arabicPct(o.total)+'</div><div class="t">إجمالي دروس الترم</div></div>';
+    html += '<div class="stat-card"><div class="n">'+arabicPct(o.done)+'</div><div class="t">دروس مكتملة</div></div>';
+    html += '<div class="stat-card"><div class="n">'+arabicPct(o.inProgress)+'</div><div class="t">قيد المذاكرة الآن</div></div>';
+    html += '<div class="stat-card"><div class="n">'+arabicPct(o.total-o.done-o.inProgress)+'</div><div class="t">لم تبدأ بعد</div></div>';
+    html += '</div>';
+
+    html += '<div class="section-title">نسبة الإنجاز حسب المادة<span class="rule"></span></div>';
+    SUBJECTS.forEach(function(s){
+      var st = subjectStats(s.id);
+      var pct = st.total ? Math.round((st.done/st.total)*100) : 0;
+      html += '<div class="subject-row" data-open-subject="'+s.id+'">';
+      html += '  <div class="badge" style="background:'+s.color+'">'+s.name.charAt(0)+'</div>';
+      html += '  <div class="info">';
+      html += '    <div class="name">'+s.name+'</div>';
+      html += '    <div class="meta">'+arabicPct(st.done)+' / '+arabicPct(st.total)+' درساً — '+arabicPct(pct)+'٪</div>';
+      html += '    <div class="bar"><i style="width:'+pct+'%; background:'+s.color+'"></i></div>';
+      html += '  </div>';
+      html += '  <div class="chev">‹</div>';
+      html += '</div>';
+    });
+    document.getElementById("view-dashboard").innerHTML = html;
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-open-subject]"), function(el){
+      el.addEventListener("click", function(){
+        ui.tab = "lessons";
+        ui.lessonFilter = el.getAttribute("data-open-subject");
+        renderAll();
+      });
+    });
+  }
+
+  /* ============ RENDER: lessons ============ */
+  function renderLessons(){
+    var html = '<div class="filter-row">';
+    html += '<button class="chip'+(ui.lessonFilter==="all"?" active":"")+'" data-filter="all">كل المواد</button>';
+    SUBJECTS.forEach(function(s){
+      html += '<button class="chip'+(ui.lessonFilter===s.id?" active":"")+'" data-filter="'+s.id+'">'+s.name+'</button>';
+    });
+    html += '</div>';
+
+    var subjectsToShow = ui.lessonFilter==="all" ? SUBJECTS : SUBJECTS.filter(function(s){ return s.id===ui.lessonFilter; });
+
+    subjectsToShow.forEach(function(s){
+      var ls = lessonsFor(s.id);
+      var st = subjectStats(s.id);
+      html += '<div class="subject-group">';
+      html += '  <div class="subject-group-head"><div class="badge" style="width:28px;height:28px;font-size:13px;background:'+s.color+'">'+s.name.charAt(0)+'</div>';
+      html += '  <div class="name">'+s.name+'</div><div class="frac">'+arabicPct(st.done)+' / '+arabicPct(st.total)+'</div></div>';
+      ls.forEach(function(l){
+        var stt = state.lessonStatus[l.id];
+        html += '<div class="lesson">';
+        html += '  <div class="top-row"><span class="week">أسبوع '+arabicPct(l.week)+'</span><span class="title">'+l.title+'</span></div>';
+        html += '  <div class="status-row">';
+        html += '    <button class="status-btn" data-lesson="'+l.id+'" data-kind="study" data-state="'+stt.study+'"><span class="k">المذاكرة: </span>'+STUDY_LABELS[stt.study]+'</button>';
+        html += '    <button class="status-btn" data-lesson="'+l.id+'" data-kind="review" data-state="'+stt.review+'"><span class="k">المراجعة: </span>'+REVIEW_LABELS[stt.review]+'</button>';
+        html += '  </div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+
+    document.getElementById("view-lessons").innerHTML = html;
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function(el){
+      el.addEventListener("click", function(){
+        ui.lessonFilter = el.getAttribute("data-filter");
+        renderLessons();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".status-btn"), function(el){
+      el.addEventListener("click", function(){
+        var id = el.getAttribute("data-lesson");
+        var kind = el.getAttribute("data-kind");
+        var cur = state.lessonStatus[id][kind];
+        var next = CYCLE[(CYCLE.indexOf(cur)+1) % CYCLE.length];
+        state.lessonStatus[id][kind] = next;
+        renderLessons();
+        renderHeader();
+        schedulePublish();
+      });
+    });
+  }
+
+  /* ============ RENDER: schedule ============ */
+  function renderSchedule(){
+    var html = '<div class="day-tabs">';
+    DAY_ORDER.forEach(function(d){
+      html += '<button class="day-btn'+(ui.day===d?" active":"")+'" data-day="'+d+'">'+d+'</button>';
+    });
+    html += '</div>';
+
+    var slots = SCHEDULE[ui.day] || [];
+    html += '<div>';
+    slots.forEach(function(sl){
+      var s = sl.subjectId ? subj(sl.subjectId) : null;
+      var color = s ? s.color : "var(--idle)";
+      html += '<div class="slot">';
+      html += '  <div class="time">'+sl.time+'</div>';
+      html += '  <div class="stripe" style="background:'+color+'"></div>';
+      html += '  <div class="body">';
+      html += '    <span class="subj">'+(s?s.name:sl.activity.split(":")[0])+'</span><span class="dur">'+sl.dur+'</span>';
+      html += '    <div class="activity">'+sl.activity+'</div>';
+      if(sl.note){ html += '    <div class="note">✦ '+sl.note+'</div>'; }
+      html += '  </div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    if(ui.day==="الأربعاء" || ui.day==="الإثنين" || ui.day==="الثلاثاء"){
+      html += '<div class="day-note">تم توسيع مواعيد البلاغة والأدب والنصوص والمطالعة والإنشاء هذا الترم لتغطية الدروس الإضافية المضافة للمنهج، مع الحفاظ على إجمالي وقت مذاكرة معقول يومياً.</div>';
+    }
+    if(ui.day==="السبت"){
+      html += '<div class="day-note">أُضيفت جلسة أسبوعية جديدة لمادة الفقه الشافعي (المختار من الإقناع) في نهاية يوم السبت.</div>';
+    }
+
+    document.getElementById("view-schedule").innerHTML = html;
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-day]"), function(el){
+      el.addEventListener("click", function(){
+        ui.day = el.getAttribute("data-day");
+        renderSchedule();
+      });
+    });
+  }
+
+  /* ============ TABS ============ */
+  function renderTabs(){
+    Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-tab")===ui.tab);
+    });
+    ["dashboard","lessons","schedule"].forEach(function(t){
+      document.getElementById("view-"+t).classList.toggle("active", t===ui.tab);
+    });
+  }
+
+  document.querySelectorAll("nav.tabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      ui.tab = btn.getAttribute("data-tab");
+      renderAll();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  });
+
+  function renderAll(){
+    renderHeader();
+    renderTabs();
+    if(ui.tab==="dashboard") renderDashboard();
+    if(ui.tab==="lessons") renderLessons();
+    if(ui.tab==="schedule") renderSchedule();
+  }
+
+  renderAll();
+})();
+</script></body></html>
